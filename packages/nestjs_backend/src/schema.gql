@@ -1,0 +1,12 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type Review {
+  id: Int!
+  title: String!
+}
+
+type Query {
+  review_posts: [Review!]!
+}
