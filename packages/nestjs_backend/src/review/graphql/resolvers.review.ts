@@ -11,7 +11,7 @@ export class ReviewResolver {
 
     // @ts-ignore
     @Query((returns) => [Review])
-    async review_posts() {
+    async fetch_review_posts() {
         return this.prismaService.review.findMany()
     }
 }

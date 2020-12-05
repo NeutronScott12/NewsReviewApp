@@ -2,11 +2,44 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
+type AuthenticationResponse {
+  success: Boolean!
+  JwtToken: String!
+}
+
+type DeleteResponse {
+  success: Boolean!
+}
+
 type Review {
   id: Int!
   title: String!
 }
 
+type User {
+  id: Int!
+  name: String!
+  reviews: [Review!]!
+  created_at: DateTime!
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
 type Query {
-  review_posts: [Review!]!
+  fetch_users: [User!]!
+  fetch_review_posts: [Review!]!
+}
+
+type Mutation {
+  register(RegisterInput: RegisterInput!): AuthenticationResponse!
+  sign_in(name: String!): AuthenticationResponse!
+  delete_user: DeleteResponse!
+}
+
+input RegisterInput {
+  name: String!
+  password: String!
 }
