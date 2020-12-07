@@ -75,15 +75,14 @@ export class UserResolvers {
             const hash_password = user.password
             let matches = await compare(login_input.password, hash_password)
             if (matches) {
-                console.log('Password Matched')
-
                 return {
-                    success: false,
+                    success: true,
                     JwtToken: await this.authService.sign_payload(user),
                 }
             } else {
                 return {
                     success: false,
+                    // code: HttpStatus.FORBIDDEN,
                     JwtToken: '',
                 }
             }

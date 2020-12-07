@@ -3,7 +3,6 @@ import { JwtModule } from '@nestjs/jwt'
 import { PassportModule } from '@nestjs/passport'
 
 import { PrismaService } from '../prisma.service'
-import { JwtConstants } from '../utlity/constants'
 import { UserResolvers } from './graphql/resolvers/resolvers.user'
 import { JwtStrategy } from './passport/jwt.strategy'
 import { LocalStrategy } from './passport/local.strategy'
@@ -14,7 +13,7 @@ import { UserService } from './service/users.service'
     imports: [
         PassportModule,
         JwtModule.register({
-            secret: JwtConstants.secret,
+            secret: process.env.JWT_SECRET,
             signOptions: { expiresIn: '7d' },
         }),
     ],
