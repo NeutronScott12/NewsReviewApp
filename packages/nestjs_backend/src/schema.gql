@@ -20,7 +20,7 @@ type User {
   id: Int!
   name: String!
   reviews: [Review!]!
-  created_at: DateTime!
+  createdAt: DateTime!
 }
 
 """
@@ -35,11 +35,16 @@ type Query {
 
 type Mutation {
   register(RegisterInput: RegisterInput!): AuthenticationResponse!
-  sign_in(name: String!): AuthenticationResponse!
+  sign_in(LoginInput: LoginInput!): AuthenticationResponse!
   delete_user: DeleteResponse!
 }
 
 input RegisterInput {
+  name: String!
+  password: String!
+}
+
+input LoginInput {
   name: String!
   password: String!
 }

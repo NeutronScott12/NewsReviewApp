@@ -1,7 +1,7 @@
 import { HttpException, HttpStatus, UseGuards } from '@nestjs/common'
 import { Args, Mutation, Query } from '@nestjs/graphql'
 import { Resolver } from '@nestjs/graphql'
-import { hash, genSalt } from 'bcryptjs'
+import { hash, genSalt, compare } from 'bcryptjs'
 
 import { PrismaService } from '../../../prisma.service'
 import { findUser } from '../../../utlity/findUser'
@@ -11,6 +11,7 @@ import { AuthenticationResponse } from '../../models/authentication_response.mod
 import { DeleteResponse } from '../../models/deleteResponse.model'
 import { User } from '../../models/user.model'
 import { AuthService } from '../../service/auth.service'
+import { LoginInput } from '../input_types/login_input'
 import { RegisterInput } from '../input_types/register_input'
 
 @Resolver(() => User)
@@ -23,7 +24,11 @@ export class UserResolvers {
     // @ts-ignore
     @Query((returns) => [User])
     async fetch_users() {
-        return this.prismaService.user.findMany()
+        const users = await this.prismaService.user.findMany()
+
+        console.log(users)
+
+        return users
     }
 
     @Mutation(() => AuthenticationResponse)
@@ -36,7 +41,7 @@ export class UserResolvers {
 
         try {
             const salt = await genSalt(10)
-            passwordHash = await hash('B4c0//', salt)
+            passwordHash = await hash(register_input.password, salt)
         } catch (error) {
             throw new HttpException(
                 {
@@ -63,10 +68,26 @@ export class UserResolvers {
     }
 
     @Mutation(() => AuthenticationResponse)
-    async sign_in(@Args({ name: 'name' }) name: string) {
-        const user = await findUser(this.prismaService, name)
+    async sign_in(@Args('LoginInput') login_input: LoginInput) {
+        const user = await findUser(this.prismaService, login_input.name)
 
-        if (user) {
+        if (user && user.password) {
+            const hash_password = user.password
+            let matches = await compare(login_input.password, hash_password)
+            if (matches) {
+                console.log('Password Matched')
+
+                return {
+                    success: false,
+                    JwtToken: await this.authService.sign_payload(user),
+                }
+            } else {
+                return {
+                    success: false,
+                    JwtToken: '',
+                }
+            }
+
             return user
         } else {
             return {
@@ -79,15 +100,10 @@ export class UserResolvers {
     @UseGuards(GqlAuthGuard)
     @Mutation(() => DeleteResponse)
     async delete_user(@CurrentUser() user_info: User) {
-        console.log(user_info)
-        const user = await this.prismaService.user.findUnique({
-            where: { id: user_info.id },
-        })
-
-        if (user) {
-            this.prismaService.user.delete({
+        if (user_info.id) {
+            await this.prismaService.user.delete({
                 where: {
-                    id: user.id,
+                    id: user_info.id,
                 },
             })
 

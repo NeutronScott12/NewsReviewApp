@@ -16,5 +16,5 @@ export class User {
     reviews: Review[]
 
     @Field()
-    created_at: Date
+    createdAt: Date
 }
